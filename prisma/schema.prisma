@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Operation {
+  id                      Int @id @default(autoincrement())
+  from                    String
+  to                      String
+  amount                  Int
+  isSuspicious            Boolean @default(false)
+  reason                  String
+  fileName                String
+
+  summaryId               Int
+  summary                 Summary @relation(fields: [summaryId], references: [id])
+}
+
+model InvalidOperation {
+  id                      Int @id @default(autoincrement())
+  from                    String
+  to                      String
+  amount                  Int
+  reason                  String
+  fileName                String
+
+  summaryId               Int
+  summary                 Summary @relation(fields: [summaryId], references: [id])
+}
+
+model Summary {
+  id                      Int @id @default(autoincrement())
+  fileName                String
+  operations              Operation[]
+  invalidOperations       InvalidOperation[]
+}
