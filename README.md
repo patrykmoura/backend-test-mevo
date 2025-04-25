@@ -89,5 +89,14 @@ npx prisma generate
 ---
 
 ## Endpoints
-
 Usar a collection postman de exemplo: Teste Mevo.postman_collection.json
+1. Auth: para fazer login
+2. Create: para criar novos usuarios para login
+3. Upload: para processar o csv
+4. Summary: para verificar os envios e resumos
+5. Profile: para verificar quem está logado
+
+Ps.: 
+1. A collection usa variaveis de ambiente
+2. Setar a variavel BaseUrl
+3. Ao rodar o Auth, o acess_token já é incluido via variavel de ambiente.

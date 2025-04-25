@@ -1,6 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { Readable } from 'stream';
 import { parse } from 'fast-csv';
+import { extname } from 'path';
+
 import { PrismaService } from '../prisma/prisma.service';
 
 interface RawOperation {
@@ -33,6 +35,11 @@ export class TransactionService {
     }
 
     async upload(fileName: string, buffer: Buffer) {
+        const fileExtension = extname(fileName).toLowerCase();
+        if (fileExtension !== '.csv') {
+            throw new BadRequestException('Invalid file type. Only CSV files are allowed.');
+        }
+
         const rows = await this.parseCSV(buffer);
         const validOperation: RawOperation[] = [];
         const invalidOperation: RawOperation[] = [];

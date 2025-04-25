@@ -19,8 +19,6 @@ COPY --from=builder /app/dist ./dist
 COPY prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
-ENV DATABASE_URL="file:/app/dev.db"
-
 RUN npx prisma generate
 
 CMD ["node", "dist/main"]

@@ -11,9 +11,9 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - csv-processor-db:/app/dev.db
+      - csv-processor-db:/prisma/dev.db
     environment:
-      - DATABASE_URL=file:/app/dev.db
+      - DATABASE_URL=file:/app/prisma/dev.db
       - JWT_SECRET=teste-mevo-@xpto
     command: sh -c "npx prisma migrate deploy && node dist/main"
 
