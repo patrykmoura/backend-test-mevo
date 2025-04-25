@@ -18,7 +18,12 @@ API para processamento de arquivos CSV com validações, persistência e identif
 npm install
 ```
 
-### 2. Rodar a aplicação
+### 2. Criar env file
+```bash
+mv .env.sample .env
+```
+
+### 3. Rodar a aplicação
 ```bash
 npm run start:dev
 ```
@@ -85,17 +90,4 @@ npx prisma generate
 
 ## Endpoints
 
-### POST `/auth`
-
-
-### POST `/transaction/upload`
-Faz o upload do CSV. Espera um campo `file` como `multipart/form-data`.
-
-#### Exemplo `curl`:
-```bash
-curl --location 'http://localhost:3000/transaction/upload' \
---form 'file=@"./teste.csv"'
-```
-
-### GET `/transaction/summary`
-Retornao summary
+Usar a collection postman de exemplo: Teste Mevo.postman_collection.json
