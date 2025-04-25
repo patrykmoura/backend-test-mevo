@@ -14,6 +14,7 @@ services:
       - csv-processor-db:/app/dev.db
     environment:
       - DATABASE_URL=file:/app/dev.db
+      - JWT_SECRET=teste-mevo-@xpto
     command: sh -c "npx prisma migrate deploy && node dist/main"
 
 volumes:

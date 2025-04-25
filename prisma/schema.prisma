@@ -7,6 +7,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Auth {
+  id                      Int                @id @default(autoincrement())
+  username                String
+  password                String
+  email                   String?            @default("")
+  createdAt               DateTime           @default(now())
+}
+
 model Operation {
   id                      Int                @id @default(autoincrement())
   from                    String

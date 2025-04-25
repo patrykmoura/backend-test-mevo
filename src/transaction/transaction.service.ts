@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Readable } from 'stream';
 import { parse } from 'fast-csv';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 interface RawOperation {
     from: string;
@@ -108,7 +108,7 @@ export class TransactionService {
                             to: row.to,
                             amount: row.amount,
                             isSuspicious: row.amount > (50000 * 100),
-                            reason: row.reason ?? '',
+                            reason: row.reason,
                             fileName
                         }))
                     }

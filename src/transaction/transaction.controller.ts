@@ -1,8 +1,11 @@
-import { Controller, Get, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
-import { TransactionService } from './transaction.service';
+import { Controller, Get, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 
+import { TransactionService } from './transaction.service';
+import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
+
 @Controller('transaction')
+@UseGuards(JwtAuthGuard)
 export class TransactionController {
     constructor(
         private readonly service : TransactionService
