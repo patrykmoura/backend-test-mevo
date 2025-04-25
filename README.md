@@ -52,7 +52,7 @@ docker stack deploy -c docker-compose.yml mevo
 ### 4.  Verificar o IP
 ```bash
 ip addr show eth0 | grep "inet\b" | awk '{print $2}' | cut -d/ -f1
-172.28.246.243
+172.28.246.243 # exemplo do meu ip no swarm
 ```
 
 ---
@@ -65,16 +65,17 @@ ip addr show eth0 | grep "inet\b" | awk '{print $2}' | cut -d/ -f1
 - **Configuração:** No arquivo `prisma/schema.prisma`
 
 ### Models atuais
+- `Auth`
 - `Operation`
 - `InvalidOperation`
-- `File`
+- `Summary`
 
 ### Criar o banco e aplicar os modelos
 ```bash
 npx prisma migrate dev --name init
 ```
 
-### Atualizar/editar models
+### Atualizar/editar models (caso necessário)
 1. Editar o arquivo `prisma/schema.prisma`
 2. Rodar:
 ```bash
