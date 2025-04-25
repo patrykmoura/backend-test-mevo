@@ -4,37 +4,44 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./dev.db"
+  url      = env("DATABASE_URL")
 }
 
 model Operation {
-  id                      Int @id @default(autoincrement())
+  id                      Int                @id @default(autoincrement())
   from                    String
   to                      String
   amount                  Int
-  isSuspicious            Boolean @default(false)
-  reason                  String
+  isSuspicious            Boolean            @default(false)
+  reason                  String?            @default("")
   fileName                String
+  createdAt               DateTime           @default(now())
 
   summaryId               Int
-  summary                 Summary @relation(fields: [summaryId], references: [id])
+  summary                 Summary            @relation(fields: [summaryId], references: [id])
 }
 
 model InvalidOperation {
-  id                      Int @id @default(autoincrement())
+  id                      Int                @id @default(autoincrement())
   from                    String
   to                      String
   amount                  Int
   reason                  String
   fileName                String
+  createdAt               DateTime           @default(now())
 
   summaryId               Int
-  summary                 Summary @relation(fields: [summaryId], references: [id])
+  summary                 Summary            @relation(fields: [summaryId], references: [id])
 }
 
 model Summary {
-  id                      Int @id @default(autoincrement())
+  id                      Int                @id @default(autoincrement())
   fileName                String
+  totalValid              Int                @default(0)
+  totalInvalid            Int                @default(0)
+  invalidReasons          String?            @default("")
+  createdAt               DateTime           @default(now())
+
   operations              Operation[]
   invalidOperations       InvalidOperation[]
 }

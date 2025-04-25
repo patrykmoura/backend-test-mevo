@@ -7,29 +7,43 @@ interface RawOperation {
     from: string;
     to: string;
     amount: number;
-    reason?: string; 
+    reason?: string;
 }
 
 @Injectable()
 export class TransactionService {
-    
     constructor(
-        private readonly prisma : PrismaService
+        private readonly prisma: PrismaService
     ) { }
 
+    async summary() {
+        const summaryList = await this.prisma.summary.findMany({
+            select: {
+                fileName: true,
+                totalValid: true,
+                totalInvalid: true,
+                invalidReasons: true,
+                createdAt: true
+            },
+            orderBy: {
+                createdAt: 'desc',
+            }
+        });
+        return summaryList;
+    }
 
-    async uploadFile(fileName: string, buffer: Buffer) {
+    async upload(fileName: string, buffer: Buffer) {
         const rows = await this.parseCSV(buffer);
-        const validOperation: RawOperation[] = []; 
-        const invalidOperation: RawOperation[] = []; 
+        const validOperation: RawOperation[] = [];
+        const invalidOperation: RawOperation[] = [];
         const seen = new Set<string>();
 
         for (const row of rows) {
             const key = `${row.from}-${row.to}-${row.amount}`;
-            
+
             if (seen.has(key)) {
                 invalidOperation.push({
-                    ... row,
+                    ...row,
                     reason: 'duplicated value'
                 });
                 continue;
@@ -37,14 +51,14 @@ export class TransactionService {
 
             if (row.amount < 0) {
                 invalidOperation.push({
-                    ... row,
+                    ...row,
                     reason: 'negative amount'
                 });
             }
-            
+
             if (row.amount > (50000 * 100)) {
                 validOperation.push({
-                    ... row,
+                    ...row,
                     reason: 'suspicious amount'
                 });
             } else {
@@ -54,23 +68,39 @@ export class TransactionService {
             seen.add(key);
         }
 
-        this.persistData(fileName, validOperation, invalidOperation);
+        await this.persistData(fileName, validOperation, invalidOperation);
 
-        return {
-            validOperations: validOperation.length,
-            invalidOperations: invalidOperation.length,
-            invalidReasons: `Total duplicado ${invalidOperation.filter(x => x.amount > 0).length}; Total negativo: ${invalidOperation.filter(x => x.amount < 0).length}`
-        };
+        const summary = await this.prisma.summary.findFirst({
+            select: {
+                fileName: true,
+                totalValid: true,
+                totalInvalid: true,
+                invalidReasons: true,
+                createdAt: true
+            },
+            orderBy: {
+                createdAt: 'desc',
+            }
+        });
+
+        return summary;
     }
 
     async persistData(
-        fileName: string, 
-        validOperation: RawOperation[], 
+        fileName: string,
+        validOperation: RawOperation[],
         invalidOperation: RawOperation[]
     ) {
-        const summary = await this.prisma.summary.create({ 
-            data: { 
+        const totalDupes = invalidOperation.filter(x => x.amount > 0).length;
+        const totalNegative = invalidOperation.filter(x => x.amount < 0).length;
+
+        await this.prisma.summary.create({
+            data: {
                 fileName,
+                totalValid: validOperation.length,
+                totalInvalid: invalidOperation.length,
+                invalidReasons: `Total duplicado ${totalDupes}; Total negativo: ${totalNegative}`,
+
                 operations: {
                     createMany: {
                         data: validOperation.map((row) => ({
@@ -94,15 +124,15 @@ export class TransactionService {
                             fileName
                         }))
                     }
-                } 
-            } 
+                }
+            }
         });
     }
 
     parseCSV(buffer: Buffer): Promise<RawOperation[]> {
-            return new Promise((resolve, reject) => {
-                const result: RawOperation[] = [];
-                Readable.from(buffer.toString())
+        return new Promise((resolve, reject) => {
+            const result: RawOperation[] = [];
+            Readable.from(buffer.toString())
                 .pipe(parse({ headers: ['from', 'to', 'amount'], delimiter: ';', 'trim': true, skipRows: 1 }))
                 .on('error', error => {
                     reject(error);
@@ -110,7 +140,6 @@ export class TransactionService {
                 })
                 .on('data', row => {
                     if (isNaN(row.amount)) return;
-
 
                     result.push({
                         from: row.from,
@@ -121,6 +150,6 @@ export class TransactionService {
                 .on('end', () => {
                     resolve(result);
                 });
-            });
+        });
     }
 }
